@@ -147,17 +147,27 @@ class CustomBaggingClassifier:
         return [x/sum_imp for x in avg] if sum_imp > 0 else avg
         
     def fit(self, X, y):
-        print(f"Training {self.n_estimators} Custom Decision Trees...")
-        n_samples = len(X)
+        print(f"Training {self.n_estimators} Custom Decision Trees with balanced sampling...")
+        # Get indices of positive and negative classes
+        pos_idx = [i for i, label in enumerate(y) if label == 1]
+        neg_idx = [i for i, label in enumerate(y) if label == 0]
+        
         for i in range(self.n_estimators):
             print(f"  Training tree {i+1}/{self.n_estimators}...")
-            # Bootstrap sample
+            # Balanced Bootstrap sample
             X_boot = []
             y_boot = []
-            for _ in range(n_samples):
-                idx = random.randint(0, n_samples - 1)
-                X_boot.append(X[idx])
-                y_boot.append(y[idx])
+            
+            # Determine size based on the smaller class
+            sample_size = min(len(pos_idx), len(neg_idx))
+            
+            for _ in range(sample_size):
+                p_i = random.choice(pos_idx)
+                n_i = random.choice(neg_idx)
+                X_boot.append(X[p_i])
+                y_boot.append(y[p_i])
+                X_boot.append(X[n_i])
+                y_boot.append(y[n_i])
                 
             tree = CustomDecisionTree(max_depth=8)
             tree.fit(X_boot, y_boot)
@@ -217,58 +227,71 @@ if __name__ == "__main__":
     y_raw = []
     header = []
     
-    with open('WA_Fn-UseC_-Telco-Customer-Churn.csv', 'r') as f:
+    with open('customer_churn_dataset-testing-master.csv', 'r') as f:
         reader = csv.reader(f)
         header = next(reader)
         
-        # customerID is col 0, Churn is the last col (20). 
         # Identify columns
-        feature_cols = header[1:-1]
+        feature_cols = [c for c in header if c not in ["CustomerID", "Churn"]]
         
-        total_charges_idx = header.index("TotalCharges")
+        total_charges_idx = header.index("Total Spend")
         churn_idx = header.index("Churn")
         
         # Store for mean imputation
         total_charges_vals = []
         
         for row in reader:
-            features = row[1:-1]
-            y_val = 1 if row[churn_idx] == "Yes" else 0
+            # Clean empty/missing rows first
+            if not row or not row[0]: continue
+                
+            features = [row[header.index(c)] for c in feature_cols]
+            try:
+                y_val = int(row[churn_idx])
+            except ValueError:
+                continue # Skip row if Target is blank
             
-            # Clean TotalCharges
+            # Clean Total Spend
             tc = row[total_charges_idx]
             try:
                 tc_float = float(tc)
                 total_charges_vals.append(tc_float)
             except ValueError:
-                features[total_charges_idx - 1] = None # Will impute later
+                features[feature_cols.index("Total Spend")] = None # Will impute later
                 
             X_raw.append(features)
             y_raw.append(y_val)
             
-    # Impute missing TotalCharges with mean
+    # Impute missing Total Spend with mean
     mean_tc = sum(total_charges_vals) / len(total_charges_vals) if total_charges_vals else 0
+    tc_feature_idx = feature_cols.index("Total Spend")
     for row in X_raw:
-        if row[total_charges_idx - 1] is None:
-            row[total_charges_idx - 1] = mean_tc
+        if row[tc_feature_idx] is None:
+            row[tc_feature_idx] = mean_tc
         else:
-            row[total_charges_idx - 1] = float(row[total_charges_idx - 1])
+            row[tc_feature_idx] = float(row[tc_feature_idx])
             
-    # Also numeric cast for tenure (idx 4 if customerId dropped), MonthlyCharges (idx 17)
-    tenure_idx = feature_cols.index("tenure")
-    monthly_idx = feature_cols.index("MonthlyCharges")
-    senior_idx = feature_cols.index("SeniorCitizen")
+    # Also numeric cast for Age, Tenure, Usage Frequency, Support Calls, Payment Delay, Last Interaction
+    age_idx = feature_cols.index("Age")
+    tenure_idx = feature_cols.index("Tenure")
+    usage_idx = feature_cols.index("Usage Frequency")
+    support_idx = feature_cols.index("Support Calls")
+    payment_idx = feature_cols.index("Payment Delay")
+    interaction_idx = feature_cols.index("Last Interaction")
     
     for row in X_raw:
+        row[age_idx] = float(row[age_idx])
         row[tenure_idx] = float(row[tenure_idx])
-        row[monthly_idx] = float(row[monthly_idx])
-        row[senior_idx] = float(row[senior_idx])
+        row[usage_idx] = float(row[usage_idx])
+        row[support_idx] = float(row[support_idx])
+        row[payment_idx] = float(row[payment_idx])
+        row[interaction_idx] = float(row[interaction_idx])
         
     # Encode categorical columns statically
     print("Encoding matrices natively...")
     encoders = {}
+    numeric_indices = [age_idx, tenure_idx, usage_idx, support_idx, payment_idx, interaction_idx, tc_feature_idx]
     for col_idx, col_name in enumerate(feature_cols):
-        if col_idx not in [tenure_idx, monthly_idx, total_charges_idx - 1, senior_idx]:
+        if col_idx not in numeric_indices:
             # This is a categorical string column
             encoder = CustomLabelEncoder()
             col_data = [row[col_idx] for row in X_raw]
@@ -279,21 +302,21 @@ if __name__ == "__main__":
             
     print(f"Engineered {len(X_raw)} rows natively.")
     
-    # Train/Test Split (80/20)
-    split_idx = int(len(X_raw) * 0.8)
-    
-    # Shuffle sync
+    # Shuffle sync *BEFORE* splitting to prevent data leakage/ordered clumping
     combined = list(zip(X_raw, y_raw))
     random.seed(42)
     random.shuffle(combined)
     X_raw, y_raw = zip(*combined)
     X_raw, y_raw = list(X_raw), list(y_raw)
     
+    # Train/Test Split (80/20)
+    split_idx = int(len(X_raw) * 0.8)
+    
     X_train, y_train = X_raw[:split_idx], y_raw[:split_idx]
     X_test, y_test = X_raw[split_idx:], y_raw[split_idx:]
     
     # Train
-    bagging_model = CustomBaggingClassifier(n_estimators=10) # Reduced count to speed up pure python testing
+    bagging_model = CustomBaggingClassifier(n_estimators=30)
     bagging_model.fit(X_train, y_train)
     
     # Metrics

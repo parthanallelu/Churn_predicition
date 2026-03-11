@@ -40,186 +40,65 @@
       <div class="content">
         <form id="prediction-form" class="glass-panel">
           <div class="form-grid">
-            <!-- Demographics -->
             <div class="input-group">
-              <label for="gender">Gender</label>
-              <select id="gender" name="gender" required>
+              <label for="Age">Age</label>
+              <input type="number" id="Age" name="Age" required min="18" max="100" placeholder="e.g. 35"/>
+            </div>
+
+            <div class="input-group">
+              <label for="Gender">Gender</label>
+              <select id="Gender" name="Gender" required>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
               </select>
             </div>
-
+            
             <div class="input-group">
-              <label for="SeniorCitizen">Senior Citizen</label>
-              <select id="SeniorCitizen" name="SeniorCitizen" required>
-                <option value="0">No</option>
-                <option value="1">Yes</option>
+              <label for="Tenure">Tenure (Months)</label>
+              <input type="number" id="Tenure" name="Tenure" required min="0" placeholder="e.g. 24"/>
+            </div>
+            
+            <div class="input-group">
+              <label for="Usage Frequency">Usage Frequency</label>
+              <input type="number" id="Usage Frequency" name="Usage Frequency" required min="0" placeholder="e.g. 15"/>
+            </div>
+            
+            <div class="input-group">
+              <label for="Support Calls">Support Calls</label>
+              <input type="number" id="Support Calls" name="Support Calls" required min="0" placeholder="e.g. 2"/>
+            </div>
+            
+            <div class="input-group">
+              <label for="Payment Delay">Payment Delay (Days)</label>
+              <input type="number" id="Payment Delay" name="Payment Delay" required min="0" placeholder="e.g. 5"/>
+            </div>
+            
+            <div class="input-group">
+              <label for="Subscription Type">Subscription Type</label>
+              <select id="Subscription Type" name="Subscription Type" required>
+                <option value="Basic">Basic</option>
+                <option value="Standard">Standard</option>
+                <option value="Premium">Premium</option>
               </select>
             </div>
-
+            
             <div class="input-group">
-              <label for="Partner">Partner</label>
-              <select id="Partner" name="Partner" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
+              <label for="Contract Length">Contract Length</label>
+              <select id="Contract Length" name="Contract Length" required>
+                <option value="Monthly">Monthly</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="Annual">Annual</option>
               </select>
             </div>
-
+            
             <div class="input-group">
-              <label for="Dependents">Dependents</label>
-              <select id="Dependents" name="Dependents" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-              </select>
+              <label for="Total Spend">Total Spend ($)</label>
+              <input type="number" id="Total Spend" name="Total Spend" required min="0" step="0.01" placeholder="e.g. 600.50"/>
             </div>
-
-            <!-- Services -->
+            
             <div class="input-group">
-              <label for="PhoneService">Phone Service</label>
-              <select id="PhoneService" name="PhoneService" required>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="MultipleLines">Multiple Lines</label>
-              <select id="MultipleLines" name="MultipleLines" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-                <option value="No phone service">No phone service</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="InternetService">Internet Service</label>
-              <select id="InternetService" name="InternetService" required>
-                <option value="Fiber optic">Fiber optic</option>
-                <option value="DSL">DSL</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="OnlineSecurity">Online Security</label>
-              <select id="OnlineSecurity" name="OnlineSecurity" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-                <option value="No internet service">No internet service</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="OnlineBackup">Online Backup</label>
-              <select id="OnlineBackup" name="OnlineBackup" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-                <option value="No internet service">No internet service</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="DeviceProtection">Device Protection</label>
-              <select id="DeviceProtection" name="DeviceProtection" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-                <option value="No internet service">No internet service</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="TechSupport">Tech Support</label>
-              <select id="TechSupport" name="TechSupport" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-                <option value="No internet service">No internet service</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="StreamingTV">Streaming TV</label>
-              <select id="StreamingTV" name="StreamingTV" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-                <option value="No internet service">No internet service</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="StreamingMovies">Streaming Movies</label>
-              <select id="StreamingMovies" name="StreamingMovies" required>
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-                <option value="No internet service">No internet service</option>
-              </select>
-            </div>
-
-            <!-- Account Base -->
-            <div class="input-group">
-              <label for="Contract">Contract Type</label>
-              <select id="Contract" name="Contract" required>
-                <option value="Month-to-month">Month-to-month</option>
-                <option value="One year">One year</option>
-                <option value="Two year">Two year</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="PaperlessBilling">Paperless Billing</label>
-              <select id="PaperlessBilling" name="PaperlessBilling" required>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="PaymentMethod">Payment Method</label>
-              <select id="PaymentMethod" name="PaymentMethod" required>
-                <option value="Electronic check">Electronic check</option>
-                <option value="Mailed check">Mailed check</option>
-                <option value="Bank transfer (automatic)">
-                  Bank transfer (automatic)
-                </option>
-                <option value="Credit card (automatic)">
-                  Credit card (automatic)
-                </option>
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="tenure">Tenure (Months)</label>
-              <input
-                type="number"
-                id="tenure"
-                name="tenure"
-                min="0"
-                value="12"
-                required
-              />
-            </div>
-
-            <div class="input-group">
-              <label for="MonthlyCharges">Monthly Charges ($)</label>
-              <input
-                type="number"
-                id="MonthlyCharges"
-                name="MonthlyCharges"
-                step="0.01"
-                value="70.00"
-                required
-              />
-            </div>
-
-            <div class="input-group">
-              <label for="TotalCharges">Total Charges ($)</label>
-              <input
-                type="number"
-                id="TotalCharges"
-                name="TotalCharges"
-                step="0.01"
-                value="840.00"
-                required
-              />
+              <label for="Last Interaction">Last Interaction (Days Ago)</label>
+              <input type="number" id="Last Interaction" name="Last Interaction" required min="0" placeholder="e.g. 12"/>
             </div>
           </div>
 

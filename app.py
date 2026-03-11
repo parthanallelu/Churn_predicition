@@ -52,7 +52,7 @@ def predict():
             val = data.get(feature)
             
             # Numeric types
-            if feature in ["tenure", "MonthlyCharges", "TotalCharges", "SeniorCitizen"]:
+            if feature in ['Age', 'Tenure', 'Usage Frequency', 'Support Calls', 'Payment Delay', 'Total Spend', 'Last Interaction']:
                 try:
                     val = float(val) if val else 0.0
                 except (ValueError, TypeError):
