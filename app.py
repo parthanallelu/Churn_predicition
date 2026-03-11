@@ -22,6 +22,24 @@ with open('custom_metrics.json', 'r') as f:
 def home():
     return render_template('index.html', metrics=metrics)
 
+import os
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/docs/<filename>')
+def serve_doc(filename):
+    allowed_docs = ['README.md', 'model_documentation.md', 'code_explanation.md', 'analysis_report.md', 'internal_model_review.md']
+    if filename in allowed_docs:
+        try:
+            filepath = os.path.join('docs', filename)
+            with open(filepath, 'r') as f:
+                return f.read()
+        except FileNotFoundError:
+            return "File not generated yet.", 404
+    return "Unauthorized access.", 403
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:

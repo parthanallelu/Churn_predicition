@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About - Customer Churn AI</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; align-items: flex-start; padding-top: 8rem;}
+        
+        .about-content {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+        }
+        
+        .about-content h2 {
+            color: #fff;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .about-content h3 {
+            color: #e2e8f0;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .formula-box {
+            background: rgba(0,0,0,0.3);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            margin: 1.5rem 0;
+            color: #a5b4fc;
+        }
+        
+        .about-content ul {
+            margin-left: 2rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .about-content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+      <div class="nav-brand">Churn AI</div>
+      <ul class="nav-links">
+        <li><a href="/">Predictor</a></li>
+        <li><a href="/about" class="active">About Model</a></li>
+      </ul>
+    </nav>
+
+    <div class="background-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+
+    <main class="container">
+      <header class="header">
+        <h1>Behind the Mathematics</h1>
+        <p>
+          Understanding how the predictive engine works without external libraries.
+        </p>
+      </header>
+      
+      <div class="glass-panel about-content">
+          <h2>1. Problem Statement</h2>
+          <p>
+              In the highly competitive telecommunications sector, acquiring new customers is significantly more expensive than retaining existing ones. Companies frequently lose revenue due to "customer churn"—when subscribers abruptly cancel their services in favor of competitors. 
+              <br><br>
+              The problem lies in accurately identifying exactly <em>which</em> active customers currently possess a high mathematical probability of churning before they actually leave, allowing the business to proactively intervene with targeted retention incentives.
+          </p>
+          
+          <h2>2. Solution Approach</h2>
+          <p>
+              Rather than relying on abstracted "black-box" libraries (like <code>Scikit-Learn</code> or <code>Pandas</code>), we engineered a completely custom predictive Machine Learning platform natively in Python mapping directly to browser Glassmorphism REST interactions.
+          </p>
+          <ul>
+              <li><strong>Native Parsing:</strong> Utilizing built-in <code>csv</code> loops to manually track integer bounds and identify missing strings (Mean Imputation algorithms natively).</li>
+              <li><strong>Algorithmic Construction:</strong> Manually engineering recursive arrays computing mathematical variance limits.</li>
+              <li><strong>Lightweight Serving:</strong> Deserializing <code>pickle</code> logic directly into a Flask router, creating an instant evaluation cycle responding directly to JSON payloads completely independent of data science frameworks.</li>
+          </ul>
+
+          <h2>3. Algorithms Used</h2>
+          
+          <h3>Decision Trees (The Base Learner)</h3>
+          <p>
+              A Decision Tree functions by splitting the data sequentially via IF/ELSE structural questions based upon feature variance. Our custom <code>CustomDecisionTree</code> class algorithm operates recursively:
+          </p>
+          <ul>
+              <li>It analyzes a node's probability threshold spanning every single feature category.</li>
+              <li>Calculates the specific theoretical mathematical cleanliness (Information Gain) for every theoretical split.</li>
+              <li>Slices the array matrix in half based on the lowest impurity ratio and re-loops until it hits the configured <code>max_depth</code> node floor.</li>
+          </ul>
+
+          <h3>Bootstrap Aggregating (Bagging Ensemble)</h3>
+          <p>
+              Because singular Decision trees are prone to "overfitting" (memorizing standard curves identically rather than generalizing), we built a wrapper class called <code>CustomBaggingClassifier</code>. 
+              <br><br>
+              This algorithm leverages the <code>random</code> library to execute "Sampling with Replacement." It loops through the dataset, extracting randomly sequenced rows into <span class="highlight">10 separate completely independent datasets</span>. It then trains 10 independent Decision trees on these random copies. When a prediction is requested, all 10 trees vote independently, and the strict <span class="highlight">majority probability ratio</span> is returned.
+          </p>
+
+          <h2>4. Formulas & Mathematical Matrices</h2>
+          
+          <h3>Gini Impurity (Algorithm Branching)</h3>
+          <p>The core mathematical engine deciding how to construct the tree array bounds relies on probabilities:</p>
+          <div class="formula-box">
+              Gini = 1 - Σ (p<sub>i</sub>)<sup>2</sup>
+          </div>
+          <p>Where <em>p<sub>i</sub></em> is the probabilistic fraction of objects that physically belong to class <em>i</em> within a specific mathematical split. A Gini of 0 means perfect purity.</p>
+          
+          <h3>Evaluation Metric Validations</h3>
+          <p>Our custom analysis scripts process predictive accuracies recursively against native Python variable tracking loops, yielding absolute precision curves:</p>
+          
+          <div class="formula-box">
+              Accuracy = (TP + TN) / (Total Observations)<br><br>
+              Precision = TP / (TP + FP)<br><br>
+              Recall = TP / (TP + FN)
+          </div>
+          <p>
+              We completely discard reliance on <code>metrics.accuracy_score</code> to generate a dynamic <code>custom_plot_data.json</code> object which bridges the algorithmic output strictly into our browser layouts.
+          </p>
+      </div>
+
+      <div class="glass-panel doc-panel" style="margin-top: 2rem; margin-bottom: 4rem;">
+          <h2>Project Documentation Viewer</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Select a document to read its internal contents directly below:</p>
+          
+          <div class="doc-controls">
+              <button class="btn-secondary" style="margin-top: 0;" onclick="loadDoc('README.md')">README</button>
+              <button class="btn-secondary" style="margin-top: 0;" onclick="loadDoc('model_documentation.md')">Model Logic Docs</button>
+              <button class="btn-secondary" style="margin-top: 0;" onclick="loadDoc('code_explanation.md')">File Breakdown</button>
+              <button class="btn-secondary" style="margin-top: 0;" onclick="loadDoc('analysis_report.md')">Analysis Constraints</button>
+          </div>
+          
+          <div id="doc-viewer" class="markdown-body" style="display: none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: left; line-height: 1.6;">
+          </div>
+      </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        async function loadDoc(filename) {
+            const viewer = document.getElementById('doc-viewer');
+            viewer.innerHTML = "<p style='text-align:center;'>Loading external document...</p>";
+            viewer.style.display = 'block';
+            
+            try {
+                const response = await fetch('/docs/' + filename);
+                if (!response.ok) throw new Error("Document not found or inaccessible.");
+                const rawText = await response.text();
+                // Parse markdown and inject
+                viewer.innerHTML = marked.parse(rawText);
+            } catch (e) {
+                viewer.innerHTML = "<p style='color: var(--danger); text-align:center;'>Error loading document: " + e.message + "</p>";
+            }
+            
+            // Scroll down cleanly to the viewer opening
+            viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+  </body>
+</html>

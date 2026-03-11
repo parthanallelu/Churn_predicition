@@ -14,6 +14,15 @@
     </style>
   </head>
   <body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+      <div class="nav-brand">Churn AI</div>
+      <ul class="nav-links">
+        <li><a href="/" class="active">Predictor</a></li>
+        <li><a href="/about">About Model</a></li>
+      </ul>
+    </nav>
+
     <div class="background-shapes">
       <div class="shape shape-1"></div>
       <div class="shape shape-2"></div>
@@ -321,6 +330,15 @@
                 </div>
                 <div class="viz-card">
                     <img src="{{ url_for('static', filename='images/correlation_heatmap.png') }}" alt="Correlation Heatmap" loading="lazy">
+                </div>
+                <div class="viz-card">
+                    <img src="{{ url_for('static', filename='images/accuracy_vs_trees.png') }}" alt="Accuracy vs Trees" loading="lazy">
+                </div>
+                <div class="viz-card">
+                    <img src="{{ url_for('static', filename='images/precision_recall_curve.png') }}" alt="Precision Recall Curve" loading="lazy">
+                </div>
+                <div class="viz-card">
+                    <img src="{{ url_for('static', filename='images/confusion_matrix.png') }}" alt="Confusion Matrix Heatmap" loading="lazy">
                 </div>
             </div>
         </div>

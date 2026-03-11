@@ -40,6 +40,7 @@ These files handle translating raw algorithmic arrays into a stunning user-frien
 
 - **Initialization:** When started via `python app.py`, the script immediately deserializes (loads) `custom_model.pkl`, `custom_encoders.pkl`, etc., directly into server memory.
 - **The `/` Route:** Serves the `index.html` file to the evaluator. It intercepts `custom_metrics.json` and passes these mathematical scores directly into the HTML templating engine so they are rendered beautifully on screen.
+- **The `/about` and `/docs` Routes:** Serves the `about.html` multi-page view, which details the problem statement natively. The `/docs/<filename>` API securely allows `marked.js` to fetch and render specific project markdown files securely right inside the browser window.
 - **The `/predict` Engine:** A `POST` endpoint that listens for dictionary inputs from the web UI. It receives a JSON payload like `{"Contract": "Month-to-month"}`, iterates the value through the loaded `encoders` dictionary to get the integer mapping, maps it mathematically into a perfect array shape, and runs it through the loaded ML Model. The resulting probability is packaged as JSON and fired back down to the browser.
 
 ### `generate_graphs.py`
@@ -56,13 +57,13 @@ A highly minimal dependency tracking file. Because the project leverages Custom 
 
 This folder powers the evaluator's interaction window without node.js packaging overhead.
 
-### `templates/index.html`
+### `templates/index.html` & `templates/about.html`
 
-- The raw HTML structure containing the form elements (Dropdowns, Inputs) tailored to match the Churn Dataset schema perfectly. It leverages **Jinja2** (e.g., `{{ metrics.accuracy }}`) templating to dynamically inject the Machine Learning array analytics sent over from `app.py`.
+- The raw HTML structures containing the formal presentation. `index.html` leverages **Jinja2** (e.g., `{{ metrics.accuracy }}`) templating to dynamically inject Machine Learning array analytics from `app.py`. `about.html` contains the mathematical background and utilizes CDN scripts to asynchronously fetch and render external `.md` evaluation reports seamlessly inline.
 
 ### `static/style.css`
 
-- A premium CSS file utilizing Glassmorphism design principles containing vibrant gradients, custom animated `@keyframes`, and responsive flexible grids. It shapes the metrics dashboards, confusion matrix UI, and graphs layout into a cohesive premium user experience.
+- A premium CSS file utilizing Glassmorphism design principles containing formal monochromatic palettes (slate/silver), custom animated `@keyframes`, and responsive flexible grids. It shapes the metrics dashboards, navigation bars, and embedded markdown viewers into a cohesive enterprise-grade user experience.
 
 ### `static/script.js`
 

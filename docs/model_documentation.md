@@ -122,4 +122,4 @@ To comply with the strict zero-external-dependency rule (where possible), heavy 
 
 - **Flask:** Micro web framework running Python endpoints (`@app.route`). It bridges the gap between the internal ML environments and the vanilla Javascript API calls (`jsonify`, `request.json`).
 - **Jinja (`render_template`):** Used to inject backend analytical contexts (the JSON metrics object and image file paths) dynamically into the static `index.html`.
-- **Vanilla HTML/CSS/JS**: Creates the responsive visual Glassmorphism interface for evaluators to experiment with the custom mathematical pipeline seamlessly.
+- **Vanilla HTML/CSS/JS**: Creates the responsive formal Glassmorphism interface. The platform spans a real-time prediction application (`index.html`) alongside a dedicated architecture analysis viewer (`about.html`) that parses document frameworks seamlessly via `marked.js` APIs.

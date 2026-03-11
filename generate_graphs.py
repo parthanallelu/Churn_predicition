@@ -2,21 +2,24 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import joblib
+import json
 import os
 
 # Create static/images if it doesn't exist
 os.makedirs('static', exist_ok=True)
 os.makedirs('static/images', exist_ok=True)
 
-print("Loading data...")
+print("Loading dataset & plot data...")
 data = pd.read_csv('WA_Fn-UseC_-Telco-Customer-Churn.csv')
+
+with open('custom_plot_data.json', 'r') as f:
+    plot_data = json.load(f)
 
 # Configure aesthetics for the charts to match the frontend UI
 plt.style.use('dark_background')
 plt.rcParams.update({
     "figure.facecolor": "#0f172a",
-    "axes.facecolor": "#1e293b", # Removed alpha for matplotlib compatibility
+    "axes.facecolor": "#1e293b",
     "axes.edgecolor": "#334155",
     "axes.labelcolor": "#f8fafc",
     "text.color": "#f8fafc",
@@ -27,55 +30,68 @@ plt.rcParams.update({
 # 1. Churn Distribution Plot
 print("Generating Churn Distribution...")
 plt.figure(figsize=(6, 4))
-sns.countplot(x='Churn', data=data, palette=['#6366f1', '#ec4899'])
+sns.countplot(x='Churn', hue='Churn', data=data, palette=['#94a3b8', '#0ea5e9'], legend=False)
 plt.title("Customer Churn Distribution", pad=15)
 plt.savefig('static/images/churn_distribution.png', bbox_inches='tight', transparent=True, dpi=300)
 plt.close()
 
-# 2. Monthly Charges vs Churn Plot
-print("Generating Monthly Charges vs Churn...")
-plt.figure(figsize=(8, 5))
-sns.boxplot(x='Churn', y='MonthlyCharges', data=data, palette=['#6366f1', '#ec4899'])
-plt.title("Monthly Charges vs Churn", pad=15)
-plt.savefig('static/images/monthly_charges_churn.png', bbox_inches='tight', transparent=True, dpi=300)
+# 2. Confusion Matrix Heatmap
+print("Generating Confusion Matrix Heatmap...")
+cm = plot_data["confusion_matrix"]
+plt.figure(figsize=(6, 5))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+            xticklabels=['No Churn', 'Churn'], 
+            yticklabels=['No Churn', 'Churn'],
+            linecolor=(1, 1, 1, 0.1), linewidths=0.5)
+plt.title("Confusion Matrix Heatmap", pad=15)
+plt.ylabel('True Class')
+plt.xlabel('Predicted Class')
+plt.savefig('static/images/confusion_matrix.png', bbox_inches='tight', transparent=True, dpi=300)
 plt.close()
 
-# Load Model for Feature Importance
-print("Loading model for Feature Importance...")
-bagging_model = joblib.load('model.pkl')
-features_list = joblib.load('features.pkl')
+# 3. Accuracy vs Number of Trees Graph
+print("Generating Accuracy vs Trees Graph...")
+acc_vs_trees = plot_data["acc_vs_trees"]
+num_trees = list(range(1, len(acc_vs_trees) + 1))
+plt.figure(figsize=(8, 5))
+plt.plot(num_trees, acc_vs_trees, color='#e2e8f0', marker='o', linewidth=2)
+plt.title("Ensemble Accuracy vs Number of Trees", pad=15)
+plt.xlabel("Number of Decision Trees")
+plt.ylabel("Testing Accuracy")
+plt.xticks(num_trees)
+plt.grid(color='#334155', linestyle='--', linewidth=0.5)
+plt.savefig('static/images/accuracy_vs_trees.png', bbox_inches='tight', transparent=True, dpi=300)
+plt.close()
 
-print("Generating Feature Importance...")
-# Calculate average feature importance across all base estimators
-importances = np.mean([tree.feature_importances_ for tree in bagging_model.estimators_], axis=0)
+# 4. Precision Recall Curve
+print("Generating Precision-Recall Curve...")
+pr_curve = plot_data["pr_curve"]
+precisions = [p["precision"] for p in pr_curve]
+recalls = [p["recall"] for p in pr_curve]
+plt.figure(figsize=(8, 5))
+plt.plot(recalls, precisions, color='#38bdf8', linewidth=2, marker='s')
+plt.title("Precision-Recall Curve", pad=15)
+plt.xlabel("Recall")
+plt.ylabel("Precision")
+plt.grid(color='#334155', linestyle='--', linewidth=0.5)
+plt.savefig('static/images/precision_recall_curve.png', bbox_inches='tight', transparent=True, dpi=300)
+plt.close()
 
-# Sort features by importance
-indices = np.argsort(importances)
-sorted_features = [features_list[i] for i in indices]
-sorted_importances = importances[indices]
+# 5. Feature Importance Bar Chart
+print("Generating Feature Importance Bar Chart...")
+feature_importances = plot_data["feature_importances"]
+feature_cols = plot_data["feature_cols"]
 
-# Take top 10 features for cleaner visualization
-top_k = 10
-sorted_features = sorted_features[-top_k:]
-sorted_importances = sorted_importances[-top_k:]
+indices = np.argsort(feature_importances)
+sorted_features = [feature_cols[i] for i in indices][-10:]
+sorted_importances = [feature_importances[i] for i in indices][-10:]
 
 plt.figure(figsize=(10, 6))
-plt.barh(sorted_features, sorted_importances, color='#8b5cf6')
-plt.title("Top 10 Feature Importances", pad=15)
-plt.xlabel("Average Gini Importance")
+plt.barh(sorted_features, sorted_importances, color='#94a3b8')
+plt.title("Native Feature Importances (Gini Info Gain)", pad=15)
+plt.xlabel("Average Mathematical Importance Ratio")
 plt.tight_layout()
 plt.savefig('static/images/feature_importance.png', bbox_inches='tight', transparent=True, dpi=300)
 plt.close()
 
-print("Generating Correlation Heatmap (Numeric Only)...")
-data["TotalCharges"] = pd.to_numeric(data["TotalCharges"], errors='coerce').fillna(0)
-numeric_data = data.select_dtypes(include=[np.number])
-
-plt.figure(figsize=(10, 8))
-sns.heatmap(numeric_data.corr(), cmap="coolwarm", annot=False, fmt=".2f", linewidths=0.5, linecolor=(1, 1, 1, 0.1))
-plt.title("Numeric Feature Correlation Heatmap", pad=15)
-plt.tight_layout()
-plt.savefig('static/images/correlation_heatmap.png', bbox_inches='tight', transparent=True, dpi=300)
-plt.close()
-
-print("All visual graphs generated successfully!")
+print("All visual graphs generated successfully using native algorithm payloads!")

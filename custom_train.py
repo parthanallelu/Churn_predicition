@@ -33,13 +33,15 @@ class CustomDecisionTree:
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
         self.root = None
+        self.feature_importances = None
 
     def fit(self, X, y):
+        self.feature_importances = [0.0] * len(X[0])
         # Merge X and y for easy splitting
         dataset = [x + [y_val] for x, y_val in zip(X, y)]
-        self.root = self._build_tree(dataset, depth=0)
+        self.root = self._build_tree(dataset, depth=0, total_samples=len(X))
         
-    def _build_tree(self, dataset, depth):
+    def _build_tree(self, dataset, depth, total_samples):
         X, y = [row[:-1] for row in dataset], [row[-1] for row in dataset]
         num_samples, num_features = len(X), len(X[0])
 
@@ -48,8 +50,9 @@ class CustomDecisionTree:
             best_split = self._get_best_split(dataset, num_samples, num_features)
             
             if best_split.get("info_gain", 0) > 0:
-                left_subtree = self._build_tree(best_split["dataset_left"], depth + 1)
-                right_subtree = self._build_tree(best_split["dataset_right"], depth + 1)
+                self.feature_importances[best_split["feature_index"]] += (best_split["info_gain"] * num_samples / total_samples)
+                left_subtree = self._build_tree(best_split["dataset_left"], depth + 1, total_samples)
+                right_subtree = self._build_tree(best_split["dataset_right"], depth + 1, total_samples)
                 return Node(best_split["feature_index"], best_split["threshold"], left_subtree, right_subtree)
                 
         # Leaf Node
@@ -131,6 +134,17 @@ class CustomBaggingClassifier:
     def __init__(self, n_estimators=10):
         self.n_estimators = n_estimators
         self.trees = []
+        
+    @property
+    def feature_importances_(self):
+        if not self.trees: return []
+        n_features = len(self.trees[0].feature_importances)
+        avg = [0.0] * n_features
+        for t in self.trees:
+            for i in range(n_features):
+                avg[i] += t.feature_importances[i]
+        sum_imp = sum(avg)
+        return [x/sum_imp for x in avg] if sum_imp > 0 else avg
         
     def fit(self, X, y):
         print(f"Training {self.n_estimators} Custom Decision Trees...")
@@ -302,3 +316,33 @@ if __name__ == "__main__":
         json.dump(metrics, f)
         
     print("Native serialization complete -> custom_model.pkl, custom_encoders.pkl, custom_features.json, custom_metrics.json")
+    
+    # Generate extra mathematical chart data manually
+    print("Generating algorithmic chart plotting data...")
+    acc_vs_trees = []
+    for i in range(1, bagging_model.n_estimators + 1):
+        temp_model = CustomBaggingClassifier(n_estimators=i)
+        temp_model.trees = bagging_model.trees[:i]
+        preds_i = temp_model.predict(X_test)
+        acc_i = calculate_metrics(y_test, preds_i)["accuracy"]
+        acc_vs_trees.append(acc_i)
+        
+    probas = bagging_model.predict_proba(X_test)
+    y_scores = [p[1] for p in probas]
+    thresholds = [i/10.0 for i in range(11)]
+    pr_curve = []
+    for t in thresholds:
+        preds_t = [1 if s >= t else 0 for s in y_scores]
+        m = calculate_metrics(y_test, preds_t)
+        pr_curve.append({"threshold": t, "precision": m["precision"], "recall": m["recall"]})
+        
+    plot_data = {
+        "feature_importances": bagging_model.feature_importances_,
+        "acc_vs_trees": acc_vs_trees,
+        "pr_curve": pr_curve,
+        "feature_cols": feature_cols,
+        "confusion_matrix": metrics["confusion_matrix"]
+    }
+    with open('custom_plot_data.json', 'w') as f:
+        json.dump(plot_data, f)
+    print("Exported custom analytics logic -> custom_plot_data.json.")
