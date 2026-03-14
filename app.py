@@ -51,23 +51,23 @@ def predict():
         for feature in features:
             val = data.get(feature)
             
-            # Numeric types
-            if feature in ['Age', 'Tenure', 'Usage Frequency', 'Support Calls', 'Payment Delay', 'Total Spend', 'Last Interaction']:
-                try:
-                    val = float(val) if val else 0.0
-                except (ValueError, TypeError):
-                    val = 0.0
-                X_input.append(val)
+            # If we have an encoder, it's categorical
+            if feature in encoders:
+                encoder = encoders[feature]
+                # Default to 0 index if missing or unknown
+                encoded_val = encoder.classes_.get(str(val), 0) if val else 0
+                X_input.append(encoded_val)
             else:
-                # Categorical strings -> pass to custom Label Encoder
-                if feature in encoders:
-                    encoder = encoders[feature]
-                    encoded_val = encoder.classes_.get(str(val), 0)
-                    X_input.append(encoded_val)
-                else:
-                    X_input.append(0) # Emergency fallback
-                    
-        print("Array mapping:", X_input)
+                # Numeric type
+                try:
+                    # Clean the value (remove commas/spaces if any)
+                    if isinstance(val, str):
+                        val = val.replace(',', '').strip()
+                    X_input.append(float(val) if val else 0.0)
+                except (ValueError, TypeError):
+                    X_input.append(0.0)
+        
+        print("Array mapping (58 features) complete.")
 
         # Make prediction passing 2D array
         prediction = model.predict([X_input])[0]

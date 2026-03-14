@@ -40,65 +40,81 @@
       <div class="content">
         <form id="prediction-form" class="glass-panel">
           <div class="form-grid">
+            <!-- Section 1: Usage Details -->
+            <div class="form-section-title">Usage Details</div>
             <div class="input-group">
-              <label for="Age">Age</label>
-              <input type="number" id="Age" name="Age" required min="18" max="100" placeholder="e.g. 35"/>
+              <label for="MonthlyMinutes">Monthly Minutes</label>
+              <input type="number" id="MonthlyMinutes" name="MonthlyMinutes" required min="0" placeholder="e.g. 500"/>
+            </div>
+            <div class="input-group">
+              <label for="OverageMinutes">Overage Minutes</label>
+              <input type="number" id="OverageMinutes" name="OverageMinutes" required min="0" placeholder="e.g. 10"/>
+            </div>
+            <div class="input-group">
+              <label for="RoamingCalls">Roaming Calls</label>
+              <input type="number" id="RoamingCalls" name="RoamingCalls" required min="0" placeholder="e.g. 5"/>
+            </div>
+            <div class="input-group">
+              <label for="CurrentEquipmentDays">Equipment Days</label>
+              <input type="number" id="CurrentEquipmentDays" name="CurrentEquipmentDays" required min="0" placeholder="days owned"/>
             </div>
 
+            <!-- Section 2: Financials -->
+            <div class="form-section-title">Financials</div>
             <div class="input-group">
-              <label for="Gender">Gender</label>
-              <select id="Gender" name="Gender" required>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
+              <label for="MonthlyRevenue">Monthly Revenue ($)</label>
+              <input type="number" id="MonthlyRevenue" name="MonthlyRevenue" required min="0" step="0.01" placeholder="e.g. 55.00"/>
+            </div>
+            <div class="input-group">
+              <label for="TotalRecurringCharge">Recurring Charge ($)</label>
+              <input type="number" id="TotalRecurringCharge" name="TotalRecurringCharge" required min="0" step="0.01" placeholder="e.g. 45.00"/>
+            </div>
+            <div class="input-group">
+              <label for="IncomeGroup">Income Group (1-9)</label>
+              <input type="number" id="IncomeGroup" name="IncomeGroup" required min="0" max="9" placeholder="9=Highest"/>
+            </div>
+            <div class="input-group">
+              <label for="HandsetPrice">Handset Price</label>
+              <select id="HandsetPrice" name="HandsetPrice">
+                <option value="Unknown">Unknown</option>
+                <option value="30">30</option>
+                <option value="80">80</option>
+                <option value="100">100</option>
+                <option value="150">150</option>
+                <option value="200">200</option>
+                <option value="300">300+</option>
               </select>
             </div>
-            
+
+            <!-- Section 3: Customer Profile -->
+            <div class="form-section-title">Customer Profile</div>
             <div class="input-group">
-              <label for="Tenure">Tenure (Months)</label>
-              <input type="number" id="Tenure" name="Tenure" required min="0" placeholder="e.g. 24"/>
+              <label for="AgeHH1">Age (Head of HH)</label>
+              <input type="number" id="AgeHH1" name="AgeHH1" required min="18" max="100" placeholder="e.g. 35"/>
             </div>
-            
             <div class="input-group">
-              <label for="Usage Frequency">Usage Frequency</label>
-              <input type="number" id="Usage Frequency" name="Usage Frequency" required min="0" placeholder="e.g. 15"/>
+              <label for="MonthsInService">Months In Service</label>
+              <input type="number" id="MonthsInService" name="MonthsInService" required min="0" placeholder="e.g. 24"/>
             </div>
-            
             <div class="input-group">
-              <label for="Support Calls">Support Calls</label>
-              <input type="number" id="Support Calls" name="Support Calls" required min="0" placeholder="e.g. 2"/>
-            </div>
-            
-            <div class="input-group">
-              <label for="Payment Delay">Payment Delay (Days)</label>
-              <input type="number" id="Payment Delay" name="Payment Delay" required min="0" placeholder="e.g. 5"/>
-            </div>
-            
-            <div class="input-group">
-              <label for="Subscription Type">Subscription Type</label>
-              <select id="Subscription Type" name="Subscription Type" required>
-                <option value="Basic">Basic</option>
-                <option value="Standard">Standard</option>
-                <option value="Premium">Premium</option>
+              <label for="CreditRating">Credit Rating</label>
+              <select id="CreditRating" name="CreditRating">
+                <option value="1-Highest">1-Highest</option>
+                <option value="2-High">2-High</option>
+                <option value="3-Good">3-Good</option>
+                <option value="4-Medium">4-Medium</option>
+                <option value="5-Low">5-Low</option>
+                <option value="6-VeryLow">6-VeryLow</option>
+                <option value="7-Lowest">7-Lowest</option>
               </select>
             </div>
-            
             <div class="input-group">
-              <label for="Contract Length">Contract Length</label>
-              <select id="Contract Length" name="Contract Length" required>
-                <option value="Monthly">Monthly</option>
-                <option value="Quarterly">Quarterly</option>
-                <option value="Annual">Annual</option>
+              <label for="MaritalStatus">Marital Status</label>
+              <select id="MaritalStatus" name="MaritalStatus">
+                <option value="Unknown">Unknown</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
               </select>
-            </div>
-            
-            <div class="input-group">
-              <label for="Total Spend">Total Spend ($)</label>
-              <input type="number" id="Total Spend" name="Total Spend" required min="0" step="0.01" placeholder="e.g. 600.50"/>
-            </div>
-            
-            <div class="input-group">
-              <label for="Last Interaction">Last Interaction (Days Ago)</label>
-              <input type="number" id="Last Interaction" name="Last Interaction" required min="0" placeholder="e.g. 12"/>
             </div>
           </div>
 

@@ -117,9 +117,9 @@
           <p>
               Because singular Decision trees are prone to "overfitting" (memorizing standard curves identically rather than generalizing), we built a wrapper class called <code>CustomBaggingClassifier</code>. 
               <br><br>
-              This algorithm leverages the <code>random</code> library to execute "Sampling with Replacement." It loops through the dataset, extracting randomly sequenced rows into <span class="highlight">10 separate completely independent datasets</span>. It then trains 10 independent Decision trees on these random copies. When a prediction is requested, all 10 trees vote independently, and the strict <span class="highlight">majority probability ratio</span> is returned.
+              This algorithm leverages the <code>random</code> library to execute "Sampling with Replacement." For the high-dimensional <strong>Cell2Cell dataset</strong> (58 distinct features), we increased the ensemble depth to <span class="highlight">30 separate completely independent datasets</span>. It then trains 30 independent Decision trees on these random copies using <strong>Balanced Bootstrap Sampling</strong> (ensuring 50% churn and 50% non-churn representation). When a prediction is requested, all 30 trees vote independently, and the strict <span class="highlight">majority probability ratio</span> is returned.
           </p>
-
+          
           <h2>4. Formulas & Mathematical Matrices</h2>
           
           <h3>Gini Impurity (Algorithm Branching)</h3>
@@ -138,7 +138,7 @@
               Recall = TP / (TP + FN)
           </div>
           <p>
-              We completely discard reliance on <code>metrics.accuracy_score</code> to generate a dynamic <code>custom_plot_data.json</code> object which bridges the algorithmic output strictly into our browser layouts.
+              By balancing the 51,047 rows of the Cell2Cell matrix before training, we ensure the <span class="highlight">F1 Score</span> accurately represents our ability to catch churners, even in naturally biased markets.
           </p>
       </div>
 

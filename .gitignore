@@ -1,0 +1,16 @@
+# Python temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# CSV data files (keeping local)
+*.csv
+
+# Analysis results (temporary)
+fast_analysis_results.json
+analyze_cell2cell.py
+
+# Model artifacts (optional to keep in git, but small so we include them unless specified)
+# custom_model.pkl
+# custom_metrics.json
+# custom_plot_data.json

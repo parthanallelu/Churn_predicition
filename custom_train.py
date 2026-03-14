@@ -63,35 +63,50 @@ class CustomDecisionTree:
         best_split = {}
         max_info_gain = -float("inf")
         
+        # Pre-calculate parent gini to save time
+        y_parent = [row[-1] for row in dataset]
+        parent_gini = self._gini(y_parent)
+        
         for feature_index in range(num_features):
             feature_values = [row[feature_index] for row in dataset]
             possible_thresholds = set(feature_values)
             
-            # Subsample thresholds if too many (Optimization for continuous vars)
-            if len(possible_thresholds) > 20: 
-                possible_thresholds = random.sample(list(possible_thresholds), 20)
+            if len(possible_thresholds) > 15: # Reduced from 20 for even more speed
+                possible_thresholds = random.sample(list(possible_thresholds), 15)
                 
             for threshold in possible_thresholds:
-                dataset_left, dataset_right = self._split(dataset, feature_index, threshold)
+                # Fast split stats without creating full list datasets
+                left_y = []
+                right_y = []
+                for row in dataset:
+                    if row[feature_index] <= threshold:
+                        left_y.append(row[-1])
+                    else:
+                        right_y.append(row[-1])
                 
-                if len(dataset_left) > 0 and len(dataset_right) > 0:
-                    y, left_y, right_y = [row[-1] for row in dataset], [row[-1] for row in dataset_left], [row[-1] for row in dataset_right]
-                    current_info_gain = self._information_gain(y, left_y, right_y)
+                if len(left_y) > 0 and len(right_y) > 0:
+                    current_info_gain = self._information_gain_from_stats(y_parent, left_y, right_y, parent_gini)
                     
                     if current_info_gain > max_info_gain:
                         best_split["feature_index"] = feature_index
                         best_split["threshold"] = threshold
-                        best_split["dataset_left"] = dataset_left
-                        best_split["dataset_right"] = dataset_right
                         best_split["info_gain"] = current_info_gain
                         max_info_gain = current_info_gain
+        
+        # Performance: Only do the actual data-split ONCE for the winner
+        if "feature_index" in best_split:
+            f_idx = best_split["feature_index"]
+            thresh = best_split["threshold"]
+            best_split["dataset_left"] = [row for row in dataset if row[f_idx] <= thresh]
+            best_split["dataset_right"] = [row for row in dataset if row[f_idx] > thresh]
                         
         return best_split
         
-    def _split(self, dataset, feature_index, threshold):
-        dataset_left = [row for row in dataset if row[feature_index] <= threshold]
-        dataset_right = [row for row in dataset if row[feature_index] > threshold]
-        return dataset_left, dataset_right
+    def _information_gain_from_stats(self, parent, l_child, r_child, parent_gini):
+        weight_l = len(l_child) / len(parent)
+        weight_r = len(r_child) / len(parent)
+        gain = parent_gini - (weight_l * self._gini(l_child) + weight_r * self._gini(r_child))
+        return gain
         
     def _information_gain(self, parent, l_child, r_child):
         weight_l = len(l_child) / len(parent)
@@ -148,7 +163,6 @@ class CustomBaggingClassifier:
         
     def fit(self, X, y):
         print(f"Training {self.n_estimators} Custom Decision Trees with balanced sampling...")
-        # Get indices of positive and negative classes
         pos_idx = [i for i, label in enumerate(y) if label == 1]
         neg_idx = [i for i, label in enumerate(y) if label == 0]
         
@@ -158,14 +172,18 @@ class CustomBaggingClassifier:
             X_boot = []
             y_boot = []
             
-            # Determine size based on the smaller class
-            sample_size = min(len(pos_idx), len(neg_idx))
+            # Optimization: Cap sample size per tree to 2000 for speed
+            # 1000 positive, 1000 negative
+            max_per_class = 1000
+            n_pos = min(len(pos_idx), max_per_class)
+            n_neg = min(len(neg_idx), max_per_class)
             
-            for _ in range(sample_size):
+            for _ in range(n_pos):
                 p_i = random.choice(pos_idx)
-                n_i = random.choice(neg_idx)
                 X_boot.append(X[p_i])
                 y_boot.append(y[p_i])
+            for _ in range(n_neg):
+                n_i = random.choice(neg_idx)
                 X_boot.append(X[n_i])
                 y_boot.append(y[n_i])
                 
@@ -227,72 +245,83 @@ if __name__ == "__main__":
     y_raw = []
     header = []
     
-    with open('customer_churn_dataset-testing-master.csv', 'r') as f:
+    filename = 'cell2celltrain.csv'
+    with open(filename, 'r') as f:
         reader = csv.reader(f)
         header = next(reader)
         
         # Identify columns
         feature_cols = [c for c in header if c not in ["CustomerID", "Churn"]]
-        
-        total_charges_idx = header.index("Total Spend")
         churn_idx = header.index("Churn")
         
-        # Store for mean imputation
-        total_charges_vals = []
+        # Store for imputation
+        # col_vals[idx] = [valid_values]
+        col_vals = {c: [] for c in feature_cols}
         
+        raw_rows = []
         for row in reader:
-            # Clean empty/missing rows first
-            if not row or not row[0]: continue
-                
-            features = [row[header.index(c)] for c in feature_cols]
-            try:
-                y_val = int(row[churn_idx])
-            except ValueError:
-                continue # Skip row if Target is blank
+            if not row or len(row) < len(header): continue
             
-            # Clean Total Spend
-            tc = row[total_charges_idx]
-            try:
-                tc_float = float(tc)
-                total_charges_vals.append(tc_float)
-            except ValueError:
-                features[feature_cols.index("Total Spend")] = None # Will impute later
-                
-            X_raw.append(features)
-            y_raw.append(y_val)
+            # Map Churn (Yes=1, No=0)
+            y_val = 1 if row[churn_idx].strip().lower() == 'yes' else 0
             
-    # Impute missing Total Spend with mean
-    mean_tc = sum(total_charges_vals) / len(total_charges_vals) if total_charges_vals else 0
-    tc_feature_idx = feature_cols.index("Total Spend")
-    for row in X_raw:
-        if row[tc_feature_idx] is None:
-            row[tc_feature_idx] = mean_tc
-        else:
-            row[tc_feature_idx] = float(row[tc_feature_idx])
+            features_dict = {c: row[header.index(c)] for c in feature_cols}
+            raw_rows.append((features_dict, y_val))
             
-    # Also numeric cast for Age, Tenure, Usage Frequency, Support Calls, Payment Delay, Last Interaction
-    age_idx = feature_cols.index("Age")
-    tenure_idx = feature_cols.index("Tenure")
-    usage_idx = feature_cols.index("Usage Frequency")
-    support_idx = feature_cols.index("Support Calls")
-    payment_idx = feature_cols.index("Payment Delay")
-    interaction_idx = feature_cols.index("Last Interaction")
+            # Collect valid values for imputation
+            for c in feature_cols:
+                val = features_dict[c]
+                if val and val.strip().lower() not in ["", "na", "nan", "null"]:
+                    col_vals[c].append(val)
+                    
+    print(f"Read {len(raw_rows)} rows. Calculating imputation stats...")
     
-    for row in X_raw:
-        row[age_idx] = float(row[age_idx])
-        row[tenure_idx] = float(row[tenure_idx])
-        row[usage_idx] = float(row[usage_idx])
-        row[support_idx] = float(row[support_idx])
-        row[payment_idx] = float(row[payment_idx])
-        row[interaction_idx] = float(row[interaction_idx])
+    # Calculate imputation values (Mean for numeric, Mode for strings)
+    impute_map = {}
+    is_numeric = {}
+    
+    for c in feature_cols:
+        vals = col_vals[c]
+        if not vals:
+            impute_map[c] = 0
+            is_numeric[c] = True
+            continue
+            
+        # Try to see if it's numeric
+        try:
+            numeric_vals = [float(v) for v in vals]
+            impute_map[c] = sum(numeric_vals) / len(numeric_vals)
+            is_numeric[c] = True
+        except ValueError:
+            # Categorical: use Mode
+            from collections import Counter
+            counts = Counter(vals)
+            impute_map[c] = counts.most_common(1)[0][0]
+            is_numeric[c] = False
+
+    # Process rows: Impute and Convert
+    print("Processing features (imputation & casting)...")
+    for feat_dict, y_val in raw_rows:
+        row_vec = []
+        for c in feature_cols:
+            val = feat_dict[c]
+            # Check for missing
+            if not val or val.strip().lower() in ["", "na", "nan", "null"]:
+                val = impute_map[c]
+            
+            if is_numeric[c]:
+                row_vec.append(float(val))
+            else:
+                row_vec.append(str(val))
         
-    # Encode categorical columns statically
-    print("Encoding matrices natively...")
+        X_raw.append(row_vec)
+        y_raw.append(y_val)
+            
+    # Encode categorical columns
+    print("Encoding categorical features...")
     encoders = {}
-    numeric_indices = [age_idx, tenure_idx, usage_idx, support_idx, payment_idx, interaction_idx, tc_feature_idx]
     for col_idx, col_name in enumerate(feature_cols):
-        if col_idx not in numeric_indices:
-            # This is a categorical string column
+        if not is_numeric[col_name]:
             encoder = CustomLabelEncoder()
             col_data = [row[col_idx] for row in X_raw]
             encoded_vals = encoder.fit_transform(col_data)
@@ -300,9 +329,9 @@ if __name__ == "__main__":
                 row[col_idx] = encoded_vals[r_idx]
             encoders[col_name] = encoder
             
-    print(f"Engineered {len(X_raw)} rows natively.")
+    print(f"Final dataset: {len(X_raw)} samples, {len(feature_cols)} features.")
     
-    # Shuffle sync *BEFORE* splitting to prevent data leakage/ordered clumping
+    # Shuffle sync *BEFORE* splitting
     combined = list(zip(X_raw, y_raw))
     random.seed(42)
     random.shuffle(combined)
@@ -311,37 +340,32 @@ if __name__ == "__main__":
     
     # Train/Test Split (80/20)
     split_idx = int(len(X_raw) * 0.8)
-    
     X_train, y_train = X_raw[:split_idx], y_raw[:split_idx]
     X_test, y_test = X_raw[split_idx:], y_raw[split_idx:]
     
     # Train
+    # Using 30 trees, max_depth 8 as per plan
     bagging_model = CustomBaggingClassifier(n_estimators=30)
     bagging_model.fit(X_train, y_train)
     
     # Metrics
-    print("Calculating native evaluation metrics...")
+    print("Calculating metrics...")
     preds = bagging_model.predict(X_test)
     metrics = calculate_metrics(y_test, preds)
+    print(f"Results: Accuracy={metrics['accuracy']:.4f}, F1={metrics['f1_score']:.4f}")
     
-    print("Exporting native binary data structures...")
-    
+    print("Saving model artifacts...")
     with open('custom_model.pkl', 'wb') as f:
         pickle.dump(bagging_model, f)
-        
     with open('custom_encoders.pkl', 'wb') as f:
         pickle.dump(encoders, f)
-        
     with open('custom_features.json', 'w') as f:
         json.dump(feature_cols, f)
-        
     with open('custom_metrics.json', 'w') as f:
         json.dump(metrics, f)
         
-    print("Native serialization complete -> custom_model.pkl, custom_encoders.pkl, custom_features.json, custom_metrics.json")
-    
-    # Generate extra mathematical chart data manually
-    print("Generating algorithmic chart plotting data...")
+    # Generate extra mathematical chart data
+    print("Generating analytics dashboard data...")
     acc_vs_trees = []
     for i in range(1, bagging_model.n_estimators + 1):
         temp_model = CustomBaggingClassifier(n_estimators=i)
@@ -368,4 +392,4 @@ if __name__ == "__main__":
     }
     with open('custom_plot_data.json', 'w') as f:
         json.dump(plot_data, f)
-    print("Exported custom analytics logic -> custom_plot_data.json.")
+    print("Training process complete.")
