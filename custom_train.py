@@ -3,32 +3,71 @@ import json
 import random
 
 class CustomLabelEncoder:
+    """
+    Encodes categorical string labels into integer indices.
+
+    Assigns a unique integer to each unique value, sorted alphabetically
+    so encoding is deterministic. Unknown values at transform time fall
+    back to index 0.
+
+    Example:
+        enc = CustomLabelEncoder()
+        enc.fit_transform(['cat', 'dog', 'cat'])  # -> [0, 1, 0]
+    """
+
     def __init__(self):
         self.classes_ = {}
-        
+
     def fit(self, data):
         unique_vals = sorted(list(set(data)))
         self.classes_ = {val: idx for idx, val in enumerate(unique_vals)}
         return self
-        
+
     def transform(self, data):
-        return [self.classes_.get(val, 0) for val in data] # Fallback to 0 if unknown 
-        
+        return [self.classes_.get(val, 0) for val in data]
+
     def fit_transform(self, data):
         self.fit(data)
         return self.transform(data)
 
 class Node:
+    """
+    A single node in a decision tree.
+
+    Decision nodes store a split condition (feature_index + threshold) and
+    pointers to left/right children. Leaf nodes store a class value and have
+    no children.
+    """
+
     def __init__(self, feature_index=None, threshold=None, left=None, right=None, value=None):
-        # Decision node
-        self.feature_index = feature_index
-        self.threshold = threshold
-        self.left = left
-        self.right = right
-        # Leaf node
-        self.value = value
+        self.feature_index = feature_index  # which feature to split on
+        self.threshold = threshold          # split value: left <= threshold, right > threshold
+        self.left = left                    # left child Node
+        self.right = right                  # right child Node
+        self.value = value                  # class label (leaf nodes only)
 
 class CustomDecisionTree:
+    """
+    Binary decision tree classifier using Gini impurity for node splitting.
+
+    Implements the CART algorithm from scratch — no sklearn dependency.
+    Recursively splits nodes by maximising information gain until
+    max_depth or min_samples_split stopping criteria are met.
+
+    Args:
+        min_samples_split (int): Minimum samples required at a node to attempt a split. Default: 2.
+        max_depth (int): Maximum depth of the tree. Deeper = more overfit. Default: 10.
+
+    Attributes:
+        root (Node): Root node of the fitted tree.
+        feature_importances (list[float]): Per-feature importance scores after fitting.
+
+    Example:
+        tree = CustomDecisionTree(max_depth=8)
+        tree.fit(X_train, y_train)
+        preds = tree.predict(X_test)
+    """
+
     def __init__(self, min_samples_split=2, max_depth=10):
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
@@ -146,6 +185,26 @@ class CustomDecisionTree:
         return [self._predict_single(x, self.root) for x in X]
 
 class CustomBaggingClassifier:
+    """
+    Bagging (Bootstrap Aggregating) ensemble of CustomDecisionTree classifiers.
+
+    Trains n_estimators trees, each on a balanced bootstrap sample of the
+    training data (equal positive and negative samples). Predictions are
+    made by majority vote; probabilities by averaging vote fractions.
+
+    Args:
+        n_estimators (int): Number of decision trees in the ensemble. Default: 10.
+
+    Attributes:
+        trees (list[CustomDecisionTree]): The fitted decision trees.
+
+    Example:
+        clf = CustomBaggingClassifier(n_estimators=30)
+        clf.fit(X_train, y_train)
+        probs = clf.predict_proba(X_test)
+        preds = clf.predict(X_test)
+    """
+
     def __init__(self, n_estimators=10):
         self.n_estimators = n_estimators
         self.trees = []
@@ -215,8 +274,18 @@ class CustomBaggingClassifier:
             final_preds.append(1 if ones > zeros else 0)
         return final_preds
 
-# Metrics calculations
 def calculate_metrics(y_true, y_pred):
+    """
+    Compute binary classification metrics from true and predicted labels.
+
+    Args:
+        y_true (list[int]): Ground-truth labels (0 or 1).
+        y_pred (list[int]): Predicted labels (0 or 1).
+
+    Returns:
+        dict with keys: accuracy, precision, recall, f1_score, confusion_matrix.
+        confusion_matrix is [[TN, FP], [FN, TP]].
+    """
     tp = tn = fp = fn = 0
     for true, pred in zip(y_true, y_pred):
         if true == 1 and pred == 1: tp += 1

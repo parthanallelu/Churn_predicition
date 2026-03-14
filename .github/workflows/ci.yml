@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest pytest-cov
+
+      - name: Run model unit tests
+        run: pytest tests/test_model.py -v --tb=short
+
+      - name: Run API integration tests
+        run: pytest tests/test_api.py -v --tb=short
+
+      - name: Coverage report
+        run: pytest tests/test_model.py --cov=custom_train --cov-report=term-missing
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Lint app.py and custom_train.py
+        run: flake8 app.py custom_train.py --max-line-length=120 --ignore=E501,W503,E302,E303
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t churn-predictor:ci .
+
+      - name: Verify container starts
+        run: |
+          docker run -d -p 8080:8080 --name ci-test churn-predictor:ci
+          sleep 8
+          curl -f http://localhost:8080/ || (docker logs ci-test && exit 1)
+          docker stop ci-test

@@ -1,4 +1,5 @@
-Flask
-joblib
-matplotlib
-seaborn
+Flask==3.0.3
+Flask-Limiter==3.7.0
+gunicorn==22.0.0
+matplotlib==3.9.0
+seaborn==0.13.2

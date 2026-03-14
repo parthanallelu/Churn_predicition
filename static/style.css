@@ -233,8 +233,46 @@ option {
 /* Form Actions */
 .form-actions {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
   margin-top: 2rem;
+}
+
+/* Loading Spinner */
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+.spinner.hidden { display: none; }
+.spinner-ring {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Confidence Bar */
+.confidence-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+.confidence-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 6px;
+  transition: width 1s ease-out, background-color 0.4s ease;
 }
 
 .btn-primary {

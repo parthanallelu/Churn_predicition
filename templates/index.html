@@ -119,9 +119,13 @@
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn-primary">
+            <button type="submit" class="btn-primary" id="submit-btn">
               Predict Churn Status
             </button>
+            <div id="loading-spinner" class="spinner hidden">
+              <div class="spinner-ring"></div>
+              <p>Analyzing customer profile...</p>
+            </div>
           </div>
         </form>
 
@@ -147,6 +151,9 @@
           <div class="result-metric">
             <span class="metric-label">Likelihood to Churn:</span>
             <span class="metric-value" id="probability-value">--%</span>
+            <div class="confidence-bar">
+              <div class="confidence-fill" id="confidence-fill"></div>
+            </div>
           </div>
 
           <div class="result-status" id="churn-status">Processing...</div>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Churn Predictor — Parth's Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --blue: #0ea5e9;
+    --green: #10b981;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --dark: #0f172a;
+    --mid: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    padding: 3rem 4rem;
+    max-width: 900px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  @media print {
+    body { background: white; color: black; padding: 1.5rem; }
+    .no-print { display: none; }
+    .card { border: 1px solid #ccc; background: #f9f9f9; }
+    code, pre { background: #f0f0f0 !important; color: #333 !important; }
+    h1, h2, h3 { color: #0f172a !important; }
+    .tag { color: white !important; }
+  }
+
+  /* ── Cover ── */
+  .cover {
+    text-align: center;
+    padding: 4rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
+  .cover .badge {
+    display: inline-block;
+    background: var(--blue);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+  }
+  .cover h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .cover h1 span { color: var(--blue); }
+  .cover .subtitle {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 540px;
+    margin: 0 auto 2rem;
+  }
+  .cover .meta {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* ── Print button ── */
+  .print-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.75rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 3rem;
+    transition: background 0.2s;
+  }
+  .print-btn:hover { background: #0284c7; }
+
+  /* ── Sections ── */
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  h2 .num {
+    background: var(--blue);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--blue);
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  p { margin-bottom: 0.75rem; color: var(--muted); }
+  p strong { color: var(--text); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+    margin: 1rem 0;
+  }
+  .card.green { border-left: 4px solid var(--green); }
+  .card.yellow { border-left: 4px solid var(--yellow); }
+  .card.red { border-left: 4px solid var(--red); }
+  .card.blue { border-left: 4px solid var(--blue); }
+
+  /* ── Code ── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(0,0,0,0.35);
+    padding: 0.15rem 0.45rem;
+    border-radius: 5px;
+    font-size: 0.88em;
+    color: #a5f3fc;
+  }
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    background: #020c1b;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 0.75rem 0 1.25rem;
+    overflow-x: auto;
+    font-size: 0.9rem;
+    color: #e2e8f0;
+    line-height: 1.6;
+  }
+  pre .comment { color: #4b6880; }
+  pre .cmd { color: #86efac; }
+
+  /* ── Steps ── */
+  .steps { counter-reset: step; }
+  .step {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    counter-increment: step;
+    background: var(--blue);
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    min-width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .step-body { flex: 1; }
+  .step-body strong { display: block; margin-bottom: 0.25rem; color: var(--text); }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.2rem 0.65rem;
+    border-radius: 100px;
+    margin-right: 0.4rem;
+  }
+  .tag-done   { background: var(--green);  color: #fff; }
+  .tag-parth  { background: var(--yellow); color: #000; }
+  .tag-easy   { background: #6366f1;       color: #fff; }
+
+  /* ── Table ── */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
+  th { background: var(--mid); color: var(--blue); font-weight: 600; text-align: left; padding: 0.75rem 1rem; border: 1px solid var(--border); }
+  td { padding: 0.65rem 1rem; border: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+  td strong { color: var(--text); }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── Checklist ── */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--muted);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .check-done {
+    background: var(--green);
+    border-color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .check-done::after { content: '✓'; color: white; font-size: 0.8rem; font-weight: 700; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="badge">Developer Guide · March 2026</div>
+  <h1>Customer Churn Predictor<br><span>Everything You Need to Know</span></h1>
+  <p class="subtitle">A complete reference for setting up, running, testing, and improving the project locally.</p>
+  <p class="meta">Repo: github.com/parthanallelu/Churn_predicition &nbsp;·&nbsp; Stack: Python, Flask, Custom ML, Docker</p>
+</div>
+
+<!-- Print button -->
+<div class="no-print" style="text-align:center">
+  <button class="print-btn" onclick="window.print()">
+    🖨️ &nbsp;Save as PDF (File → Print → Save as PDF)
+  </button>
+</div>
+
+<!-- SECTION 1 -->
+<h2><span class="num">1</span> What Has Already Been Done</h2>
+<p>These changes are <strong>already committed to the GitHub repo</strong>. You don't need to do any of this — just pull and run.</p>
+
+<table>
+  <thead><tr><th>What</th><th>File(s)</th><th>Why It Matters</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Rate limiting</strong></td><td>app.py</td><td>30 req/min per IP — protects from abuse</td></tr>
+    <tr><td><strong>Security headers</strong></td><td>app.py</td><td>X-Frame-Options, X-XSS-Protection, nosniff etc.</td></tr>
+    <tr><td><strong>Proper logging</strong></td><td>app.py</td><td>Replaces all print() — logs to app.log file</td></tr>
+    <tr><td><strong>Input validation</strong></td><td>app.py</td><td>Numeric ranges checked; returns 422 with error list</td></tr>
+    <tr><td><strong>Fixed encoder fallback</strong></td><td>app.py</td><td>Unknown categories no longer wrongly map to class 0</td></tr>
+    <tr><td><strong>Docstrings</strong></td><td>custom_train.py</td><td>All classes and functions documented</td></tr>
+    <tr><td><strong>30+ unit tests</strong></td><td>tests/test_model.py</td><td>Tests every ML class and metric function</td></tr>
+    <tr><td><strong>10+ API tests</strong></td><td>tests/test_api.py</td><td>Tests all routes including security checks</td></tr>
+    <tr><td><strong>Dockerfile</strong></td><td>Dockerfile</td><td>Runs anywhere in one command via Docker</td></tr>
+    <tr><td><strong>docker-compose.yml</strong></td><td>docker-compose.yml</td><td>One-command local Docker setup</td></tr>
+    <tr><td><strong>GitHub Actions CI</strong></td><td>.github/workflows/ci.yml</td><td>Auto-runs tests + Docker build on every push</td></tr>
+    <tr><td><strong>Root README</strong></td><td>README.md</td><td>Proper project overview with badges</td></tr>
+    <tr><td><strong>Setup guide</strong></td><td>SETUP.md</td><td>Step-by-step setup + troubleshooting</td></tr>
+    <tr><td><strong>Loading spinner</strong></td><td>index.html, style.css</td><td>UI feedback while waiting for prediction</td></tr>
+    <tr><td><strong>Confidence bar</strong></td><td>index.html, style.css, script.js</td><td>Animated fill bar showing churn probability</td></tr>
+    <tr><td><strong>Client-side validation</strong></td><td>script.js</td><td>Catches bad input before hitting the API</td></tr>
+    <tr><td><strong>requirements.txt fixed</strong></td><td>requirements.txt</td><td>Removed unused joblib, pinned versions, added gunicorn</td></tr>
+  </tbody>
+</table>
+
+<hr class="divider"/>
+
+<!-- SECTION 2 -->
+<h2><span class="num">2</span> How to Run the Project Locally</h2>
+
+<h3>Option A — Plain Python (Recommended to start)</h3>
+<div class="steps">
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body">
+      <strong>Clone the repo</strong>
+      <pre><span class="cmd">git clone https://github.com/parthanallelu/Churn_predicition.git
+cd Churn_predicition</span></pre>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body">
+      <strong>Create a virtual environment (optional but recommended)</strong>
+      <pre><span class="cmd">python -m venv venv
+source venv/bin/activate</span>       <span class="comment"># Mac/Linux</span>
+<span class="cmd">venv\Scripts\activate</span>             <span class="comment"># Windows</span></pre>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body">
+      <strong>Install dependencies</strong>
+      <pre><span class="cmd">pip install -r requirements.txt</span></pre>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num"></div>
+    <div class="step-body">
+      <strong>Start the server</strong>
+      <pre><span class="cmd">python app.py</span></pre>
+      Open <strong>http://localhost:8080</strong> in your browser.
+    </div>
+  </div>
+</div>
+
+<h3>Option B — Docker (One command)</h3>
+<pre><span class="cmd">docker-compose up --build</span></pre>
+<p>Open <strong>http://localhost:8080</strong>. Stop with <code>Ctrl+C</code>, then <code>docker-compose down</code>.</p>
+
+<hr class="divider"/>
+
+<!-- SECTION 3 -->
+<h2><span class="num">3</span> How to Run Tests</h2>
+
+<div class="card blue">
+  <p><strong>Install test runner first:</strong></p>
+  <pre><span class="cmd">pip install pytest pytest-cov</span></pre>
+  <p><strong>Run all tests:</strong></p>
+  <pre><span class="cmd">pytest tests/ -v</span></pre>
+  <p><strong>Run with coverage report:</strong></p>
+  <pre><span class="cmd">pytest tests/test_model.py --cov=custom_train --cov-report=term-missing</span></pre>
+</div>
+
+<p>You should see <strong>~40 tests passing</strong>. The model unit tests (<code>test_model.py</code>) do not need the CSV — they use synthetic data. The API tests (<code>test_api.py</code>) require the .pkl files to exist.</p>
+
+<hr class="divider"/>
+
+<!-- SECTION 4 — PARTH'S JOB -->
+<h2><span class="num">4</span> What You Need to Do — Model Improvement</h2>
+
+<div class="card red">
+  <p><strong>The only thing left that requires your action is improving the model accuracy.</strong></p>
+  <p>Current performance: Accuracy <strong>57.2%</strong> · Precision <strong>37.5%</strong> · F1 <strong>0.486</strong> — this is barely better than random. Everything else in the project is solid, but this is the main gap before it's truly world-class.</p>
+  <p>You need the <code>cell2celltrain.csv</code> file on your machine. Once you have it, follow these steps exactly.</p>
+</div>
+
+<h3>Step 1 — Add feature engineering to custom_train.py</h3>
+<p>After the imputation loop (around line 303 in custom_train.py, after all raw rows are processed into <code>X_raw</code>), add these derived features <em>before</em> encoding:</p>
+
+<pre><span class="comment"># After all rows are in X_raw, before encoding
+# Add 4 derived features per row to boost signal</span>
+
+<span class="comment"># First extend feature_cols list</span>
+feature_cols += ['RevenuePerMinute', 'OverageRatio', 'ChargeToRevenueRatio', 'MonthsPerDay']
+
+<span class="comment"># Then add the calculated values to each row</span>
+monthly_min_idx   = feature_cols.index('MonthlyMinutes')
+overage_min_idx   = feature_cols.index('OverageMinutes')
+revenue_idx       = feature_cols.index('MonthlyRevenue')
+charge_idx        = feature_cols.index('TotalRecurringCharge')
+months_idx        = feature_cols.index('MonthsInService')
+equip_days_idx    = feature_cols.index('CurrentEquipmentDays')
+
+for row in X_raw:
+    mm   = float(row[monthly_min_idx]) if row[monthly_min_idx] else 0
+    om   = float(row[overage_min_idx]) if row[overage_min_idx] else 0
+    rev  = float(row[revenue_idx])     if row[revenue_idx]     else 0
+    chg  = float(row[charge_idx])      if row[charge_idx]      else 0
+    mos  = float(row[months_idx])      if row[months_idx]      else 0
+    eqd  = float(row[equip_days_idx])  if row[equip_days_idx]  else 1
+
+    row.append(rev  / (mm + 1))    <span class="comment"># revenue per minute</span>
+    row.append(om   / (mm + 1))    <span class="comment"># overage ratio</span>
+    row.append(chg  / (rev + 1))   <span class="comment"># charge to revenue ratio</span>
+    row.append(mos  / eqd)         <span class="comment"># months of service per equipment day</span></pre>
+
+<h3>Step 2 — Increase threshold sampling &amp; tree count</h3>
+<p>In <code>custom_train.py</code>, find line ~74 (the threshold sampling limit) and change it:</p>
+<pre><span class="comment"># FROM:</span>
+if len(possible_thresholds) > 15:
+    possible_thresholds = random.sample(list(possible_thresholds), 15)
+
+<span class="comment"># TO:</span>
+if len(possible_thresholds) > 25:
+    possible_thresholds = random.sample(list(possible_thresholds), 25)</pre>
+
+<p>Also increase the number of estimators (around line 348):</p>
+<pre><span class="comment"># FROM:</span>
+bagging_model = CustomBaggingClassifier(n_estimators=30)
+
+<span class="comment"># TO:</span>
+bagging_model = CustomBaggingClassifier(n_estimators=50)</pre>
+
+<h3>Step 3 — Try different max_depth values</h3>
+<p>In the <code>fit</code> method of <code>CustomBaggingClassifier</code> (around line 190), change:</p>
+<pre><span class="comment"># Try each of these one at a time, retrain, check F1 score</span>
+tree = CustomDecisionTree(max_depth=8)    <span class="comment"># current (baseline)</span>
+tree = CustomDecisionTree(max_depth=10)   <span class="comment"># try this</span>
+tree = CustomDecisionTree(max_depth=12)   <span class="comment"># try this</span></pre>
+<p>Pick whichever depth gives the highest F1 score on the test set.</p>
+
+<h3>Step 4 — Retrain</h3>
+<pre><span class="cmd">python custom_train.py</span>    <span class="comment"># retrain with new features + hyperparams</span>
+<span class="cmd">python generate_graphs.py</span> <span class="comment"># regenerate EDA charts</span></pre>
+<p>Check the printed output. You're targeting: <strong>Accuracy &gt; 75%</strong> and <strong>F1 &gt; 0.70</strong>.</p>
+
+<h3>Step 5 — Commit the retrained model</h3>
+<pre><span class="cmd">git add custom_model.pkl custom_encoders.pkl custom_features.json custom_metrics.json custom_plot_data.json static/images/
+git commit -m "Retrain model with feature engineering — improved F1 score"
+git push</span></pre>
+
+<hr class="divider"/>
+
+<!-- SECTION 5 -->
+<h2><span class="num">5</span> Full Checklist</h2>
+
+<ul class="checklist">
+  <li><div class="check-box check-done"></div> Fix app.py — logging, rate limiting, validation, security headers</li>
+  <li><div class="check-box check-done"></div> Fix encoder fallback bug</li>
+  <li><div class="check-box check-done"></div> Add docstrings to all classes</li>
+  <li><div class="check-box check-done"></div> Create 40+ tests (test_model.py + test_api.py)</li>
+  <li><div class="check-box check-done"></div> Dockerfile + docker-compose.yml</li>
+  <li><div class="check-box check-done"></div> GitHub Actions CI pipeline</li>
+  <li><div class="check-box check-done"></div> Root README.md + SETUP.md</li>
+  <li><div class="check-box check-done"></div> Loading spinner + confidence bar in UI</li>
+  <li><div class="check-box check-done"></div> Client-side form validation</li>
+  <li><div class="check-box check-done"></div> requirements.txt fixed (versioned, removed joblib, added gunicorn)</li>
+  <li><div class="check-box"></div> <strong>Model accuracy improvement</strong> — <span class="tag tag-parth">Parth's job</span> Needs cell2celltrain.csv</li>
+  <li><div class="check-box"></div> Optional: Deploy to Render/Railway/Fly.io for a live URL</li>
+</ul>
+
+<hr class="divider"/>
+
+<!-- SECTION 6 -->
+<h2><span class="num">6</span> Troubleshooting</h2>
+
+<table>
+  <thead><tr><th>Problem</th><th>Fix</th></tr></thead>
+  <tbody>
+    <tr><td><code>FileNotFoundError: custom_model.pkl</code></td><td>Run <code>python custom_train.py</code> first (needs the CSV)</td></tr>
+    <tr><td><code>ModuleNotFoundError: flask_limiter</code></td><td>Run <code>pip install -r requirements.txt</code></td></tr>
+    <tr><td>Port 8080 already in use</td><td>Change the port in the last line of app.py: <code>app.run(port=9090)</code></td></tr>
+    <tr><td>Docker build fails</td><td>Make sure Docker Desktop is running</td></tr>
+    <tr><td>Tests fail on test_api.py</td><td>The .pkl files must exist — run custom_train.py first</td></tr>
+    <tr><td>CI pipeline failing on GitHub</td><td>Check Actions tab — likely a missing artifact or import error</td></tr>
+  </tbody>
+</table>
+
+<hr class="divider"/>
+
+<p style="text-align:center; font-size:0.85rem; color:var(--muted); padding-bottom:3rem;">
+  Churn Predicition · github.com/parthanallelu/Churn_predicition · Generated March 2026
+</p>
+
+<script>
+  // Auto-number steps
+  document.querySelectorAll('.step-num').forEach((el, i) => {
+    el.textContent = i + 1;
+  });
+</script>
+</body>
+</html>
