@@ -1,16 +1,37 @@
-# Python temporary files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
 
-# CSV data files (keeping local)
-*.csv
+# Virtual environments
+.venv/
+venv/
+env/
 
-# Analysis results (temporary)
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Logs & runtime PIDs
+*.log
+flask_log.txt
+flask_pid.txt
+app.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Notebook-generated model artifacts (large — regenerate with notebook)
+xgb_tuned_model.pkl
+lgbm_tuned_model.pkl
+rf_model.pkl
+scaler.pkl
+encoders.pkl
+feature_list.json
+ensemble_config.json
+
+# Analysis results
 fast_analysis_results.json
 analyze_cell2cell.py
-
-# Model artifacts (optional to keep in git, but small so we include them unless specified)
-# custom_model.pkl
-# custom_metrics.json
-# custom_plot_data.json
