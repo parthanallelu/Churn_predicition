@@ -35,3 +35,4 @@ ensemble_config.json
 # Analysis results
 fast_analysis_results.json
 analyze_cell2cell.py
+catboost_info/
