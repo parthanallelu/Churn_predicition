@@ -39,82 +39,72 @@
 
       <div class="content">
         <form id="prediction-form" class="glass-panel">
-          <div class="form-grid">
-            <!-- Section 1: Usage Details -->
-            <div class="form-section-title">Usage Details</div>
+            <!-- Section 1: Interaction Details -->
+            <div class="form-section-title">Interaction Details</div>
             <div class="input-group">
-              <label for="MonthlyMinutes">Monthly Minutes</label>
-              <input type="number" id="MonthlyMinutes" name="MonthlyMinutes" required min="0" placeholder="e.g. 500"/>
+              <label for="tenure_months">Tenure (Months)</label>
+              <input type="number" id="tenure_months" name="tenure_months" required min="0" placeholder="e.g. 24"/>
             </div>
             <div class="input-group">
-              <label for="OverageMinutes">Overage Minutes</label>
-              <input type="number" id="OverageMinutes" name="OverageMinutes" required min="0" placeholder="e.g. 10"/>
+              <label for="monthly_transactions">Monthly Trans.</label>
+              <input type="number" id="monthly_transactions" name="monthly_transactions" required min="0" placeholder="e.g. 15"/>
             </div>
             <div class="input-group">
-              <label for="RoamingCalls">Roaming Calls</label>
-              <input type="number" id="RoamingCalls" name="RoamingCalls" required min="0" placeholder="e.g. 5"/>
+              <label for="digital_logins">Digital Logins</label>
+              <input type="number" id="digital_logins" name="digital_logins" required min="0" placeholder="e.g. 5"/>
             </div>
             <div class="input-group">
-              <label for="CurrentEquipmentDays">Equipment Days</label>
-              <input type="number" id="CurrentEquipmentDays" name="CurrentEquipmentDays" required min="0" placeholder="days owned"/>
+              <label for="branch_visits">Branch Visits</label>
+              <input type="number" id="branch_visits" name="branch_visits" required min="0" placeholder="e.g. 1"/>
             </div>
 
             <!-- Section 2: Financials -->
             <div class="form-section-title">Financials</div>
             <div class="input-group">
-              <label for="MonthlyRevenue">Monthly Revenue ($)</label>
-              <input type="number" id="MonthlyRevenue" name="MonthlyRevenue" required min="0" step="0.01" placeholder="e.g. 55.00"/>
+              <label for="account_balance">Acc. Balance ($)</label>
+              <input type="number" id="account_balance" name="account_balance" required min="0" step="0.01" placeholder="e.g. 5000.00"/>
             </div>
             <div class="input-group">
-              <label for="TotalRecurringCharge">Recurring Charge ($)</label>
-              <input type="number" id="TotalRecurringCharge" name="TotalRecurringCharge" required min="0" step="0.01" placeholder="e.g. 45.00"/>
+              <label for="income">Annual Income ($)</label>
+              <input type="number" id="income" name="income" required min="0" step="0.01" placeholder="e.g. 60000.00"/>
             </div>
             <div class="input-group">
-              <label for="IncomeGroup">Income Group (1-9)</label>
-              <input type="number" id="IncomeGroup" name="IncomeGroup" required min="0" max="9" placeholder="9=Highest"/>
+              <label for="salary_band">Salary Band</label>
+              <select id="salary_band" name="salary_band">
+                <option value="Low">Low</option>
+                <option value="Middle">Middle</option>
+                <option value="High">High</option>
+              </select>
             </div>
             <div class="input-group">
-              <label for="HandsetPrice">Handset Price</label>
-              <select id="HandsetPrice" name="HandsetPrice">
-                <option value="Unknown">Unknown</option>
-                <option value="30">30</option>
-                <option value="80">80</option>
-                <option value="100">100</option>
-                <option value="150">150</option>
-                <option value="200">200</option>
-                <option value="300">300+</option>
+              <label for="has_loan">Has Loan?</label>
+              <select id="has_loan" name="has_loan">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
               </select>
             </div>
 
             <!-- Section 3: Customer Profile -->
             <div class="form-section-title">Customer Profile</div>
             <div class="input-group">
-              <label for="AgeHH1">Age (Head of HH)</label>
-              <input type="number" id="AgeHH1" name="AgeHH1" required min="18" max="100" placeholder="e.g. 35"/>
+              <label for="age">Age</label>
+              <input type="number" id="age" name="age" required min="18" max="100" placeholder="e.g. 35"/>
             </div>
             <div class="input-group">
-              <label for="MonthsInService">Months In Service</label>
-              <input type="number" id="MonthsInService" name="MonthsInService" required min="0" placeholder="e.g. 24"/>
+              <label for="credit_score">Credit Score</label>
+              <input type="number" id="credit_score" name="credit_score" required min="300" max="850" placeholder="e.g. 720"/>
             </div>
             <div class="input-group">
-              <label for="CreditRating">Credit Rating</label>
-              <select id="CreditRating" name="CreditRating">
-                <option value="1-Highest">1-Highest</option>
-                <option value="2-High">2-High</option>
-                <option value="3-Good">3-Good</option>
-                <option value="4-Medium">4-Medium</option>
-                <option value="5-Low">5-Low</option>
-                <option value="6-VeryLow">6-VeryLow</option>
-                <option value="7-Lowest">7-Lowest</option>
+              <label for="customer_segment">Segment</label>
+              <select id="customer_segment" name="customer_segment">
+                <option value="Retail">Retail</option>
+                <option value="Premium">Premium</option>
+                <option value="Standard">Standard</option>
               </select>
             </div>
             <div class="input-group">
-              <label for="MaritalStatus">Marital Status</label>
-              <select id="MaritalStatus" name="MaritalStatus">
-                <option value="Unknown">Unknown</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
+              <label for="risk_score">Risk Score</label>
+              <input type="number" id="risk_score" name="risk_score" required min="0" max="100" placeholder="e.g. 15.5"/>
             </div>
           </div>
 
@@ -217,7 +207,7 @@
         <div class="visualizations-panel glass-panel">
             <h3>Exploratory Data Analysis</h3>
             <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">
-              Insights extracted from the Telco Customer Churn dataset during modeling.
+              Insights extracted from the modern Banking Customer Churn dataset during modeling.
             </p>
             
             <div class="viz-grid">
@@ -225,7 +215,7 @@
                     <img src="{{ url_for('static', filename='images/churn_distribution.png') }}" alt="Customer Churn Distribution" loading="lazy">
                 </div>
                 <div class="viz-card">
-                    <img src="{{ url_for('static', filename='images/monthly_charges_churn.png') }}" alt="Monthly Charges vs Churn" loading="lazy">
+                    <img src="{{ url_for('static', filename='images/monthly_charges_churn.png') }}" alt="Account Balance vs Churn" title="Account Balance vs Churn" loading="lazy">
                 </div>
                 <div class="viz-card">
                     <img src="{{ url_for('static', filename='images/feature_importance.png') }}" alt="Feature Importance" loading="lazy">

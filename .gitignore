@@ -36,3 +36,4 @@ ensemble_config.json
 fast_analysis_results.json
 analyze_cell2cell.py
 catboost_info/
+venv_stable/

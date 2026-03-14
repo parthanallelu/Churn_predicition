@@ -53,16 +53,21 @@ model, encoders, features, metrics = load_artifacts()
 
 # ── Input validation config ───────────────────────────────────────────────────
 NUMERIC_RANGES = {
-    'MonthlyMinutes':        (0, 10000),
-    'OverageMinutes':        (0, 5000),
-    'MonthlyRevenue':        (0, 5000),
-    'TotalRecurringCharge':  (0, 5000),
-    'IncomeGroup':           (1, 9),
-    'AgeHH1':                (0, 120),
-    'MonthsInService':       (0, 600),
-    'CurrentEquipmentDays':  (0, 3000),
-    'RoamingCalls':          (0, 1000),
-    'HandsetPrice':          (0, 5000),
+    'age':                 (18, 100),
+    'tenure_months':       (0, 600),
+    'account_balance':     (0, 1000000),
+    'monthly_transactions':(0, 500),
+    'credit_score':        (300, 900),
+    'num_complaints':      (0, 50),
+    'satisfaction_score':  (1, 10),
+    'late_payments':       (0, 20),
+    'digital_logins':      (0, 100),
+    'num_products':        (0, 20),
+    'branch_visits':       (0, 100),
+    'atm_usage':           (0, 100),
+    'risk_score':          (0, 100),
+    'investment_products': (0, 20),
+    'income':              (0, 2000000),
 }
 
 def validate_input(data):

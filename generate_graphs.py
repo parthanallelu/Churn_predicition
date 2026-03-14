@@ -7,18 +7,18 @@ import os
 os.makedirs('static/images', exist_ok=True)
 
 print("Loading dataset & plot data...")
-churn_counts = {'Yes': 0, 'No': 0}
-monthly_minutes = {'Yes': [], 'No': []}
+churn_counts = {'1': 0, '0': 0}
+account_balance = {'1': [], '0': []}
 
 try:
     with open('cell2celltrain.csv', 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            churn = row['Churn']
+            churn = row['churn']
             churn_counts[churn] = churn_counts.get(churn, 0) + 1
-            if row['MonthlyMinutes']:
+            if row['account_balance']:
                 try:
-                    monthly_minutes[churn].append(float(row['MonthlyMinutes']))
+                    account_balance[churn].append(float(row['account_balance']))
                 except ValueError:
                     pass
 except Exception as e:
@@ -49,13 +49,13 @@ plt.title("Customer Churn Distribution", pad=15)
 plt.savefig('static/images/churn_distribution.png', bbox_inches='tight', transparent=True, dpi=300)
 plt.close()
 
-# 2. Monthly Minutes vs Churn (Histogram as KDE replacement)
-print("Generating Monthly Minutes vs Churn...")
+# 2. Account Balance vs Churn (Histogram as KDE replacement)
+print("Generating Account Balance vs Churn...")
 plt.figure(figsize=(8, 5))
-plt.hist(monthly_minutes['No'], bins=30, alpha=0.5, label='No Churn', color='#94a3b8', density=True)
-plt.hist(monthly_minutes['Yes'], bins=30, alpha=0.5, label='Churn', color='#0ea5e9', density=True)
+plt.hist(account_balance['0'], bins=30, alpha=0.5, label='No Churn', color='#94a3b8', density=True)
+plt.hist(account_balance['1'], bins=30, alpha=0.5, label='Churn', color='#0ea5e9', density=True)
 plt.legend()
-plt.title("Monthly Minutes Distribution (Density)", pad=15)
+plt.title("Account Balance Distribution (Density)", pad=15)
 plt.savefig('static/images/monthly_charges_churn.png', bbox_inches='tight', transparent=True, dpi=300)
 plt.close()
 
